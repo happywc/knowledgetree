@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+<script type="text/javascript">
+! function() {
+    function getAttribute(n, e, defaultValue) {
+        return n.getAttribute(e) || defaultValue 
+    }
+
+    function getElementsBy(n) {
+        return document.getElementsByTagName(n) 
+    }
+
+    function init() {
+        var tags = getElementsBy("script"),
+            length = tags.length,
+            item = tags[length - 1];
+        return { 
+        	length: length, 
+        	zIndex: getAttribute(item, "zIndex", -1), 
+        	opacity: getAttribute(item, "opacity", .5), 
+        	color: getAttribute(item, "color", "0,0,0"), 
+        	count: getAttribute(item, "count", 99) 
+        } 
+    }
+
+    function resize() { 
+    	width = canvas.width = window.innerWidth 
+    			|| document.documentElement.clientWidth 
+    			|| document.body.clientWidth, 
+		height = canvas.height = window.innerHeight 
+				|| document.documentElement.clientHeight 
+				|| document.body.clientHeight 
+    }
+
+    //核心
+    function drawLines() { 
+        context.clearRect(0, 0, width, height);
+        var n, e, t, o, u, d, 
+            x = [mousePoint].concat(points);
+        points.forEach(function(i) {
+            for (
+                i.x += i.xa, i.y += i.ya, 
+                i.xa *= i.x > width || i.x < 0 ? -1 : 1, i.ya *= i.y > height || i.y < 0 ? -1 : 1, 
+                context.fillRect(i.x - .5, i.y - .5, 1, 1), 
+                e = 0; 
+                e < x.length; 
+                e++) { 
+                n = x[e], 
+                i !== n && null !== n.x && null !== n.y && (
+                    o = i.x - n.x, 
+                    u = i.y - n.y, 
+                    d = o * o + u * u, 
+                    d < n.max && (
+                        n === mousePoint && d >= n.max / 2 && (
+                            i.x -= .03 * o, 
+                            i.y -= .03 * u
+                        ), 
+                        t = (n.max - d) / n.max, 
+                        context.beginPath(), 
+                        context.lineWidth = t / 2, 
+                        context.strokeStyle = "rgba(" + m.color + "," + (t + .2) + ")", 
+                        context.moveTo(i.x, i.y), 
+                        context.lineTo(n.x, n.y), 
+                        context.stroke()
+                    )
+                );
+            }
+            x.splice(x.indexOf(i), 1) }), 
+        requestAnimationFrame(drawLines) 
+    }
+
+    var width, height, canvas = document.createElement("canvas"),
+        m = init(),
+        id = "c_n" + m.length,
+        context = canvas.getContext("2d"),
+        requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame 
+        	|| window.mozRequestAnimationFrame || window.oRequestAnimationFrame 
+        	|| window.msRequestAnimationFrame || function(n) { window.setTimeout(n, 1e3 / 45) },
+        random = Math.random,
+        mousePoint = { x: null, y: null, max: 2e4/* 2E4 = 20,000 */ };
+
+    canvas.id = id, 
+    canvas.style.cssText = "position:fixed;top:0;left:0;z-index:" + m.zIndex + ";opacity:" + m.opacity, 
+    getElementsBy("body")[0].appendChild(canvas), 
+    resize(), 
+    window.onresize = resize, 
+    window.onmousemove = function(mouseEvent) { 
+        mouseEvent = mouseEvent || window.event, 
+        mousePoint.x = mouseEvent.clientX, 
+        mousePoint.y = mouseEvent.clientY 
+    }, 
+    window.onmouseout = function() { mousePoint.x = null, mousePoint.y = null };
+    for (var points = [], s = 0; m.count > s; s++) {
+        var f = random() * width,
+            h = random() * height,
+            g = 2 * random() - 1,
+            p = 2 * random() - 1;
+        points.push({ x: f, y: h, xa: g, ya: p, max: 6e3 /* 6E3 = 6,000 */ }) }
+    setTimeout(function() { drawLines() }, 100) 
+}();
+</script>
+	<div />
+</body>
+</html>
